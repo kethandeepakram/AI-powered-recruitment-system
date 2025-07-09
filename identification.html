@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Verification</title>
+  <style>
+    /* Minimal styling for functionality */
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #2d2d2d;
+      border-radius: 5px;
+    }
+    
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #333333;
+      border-radius: 5px;
+    }
+    
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:disabled {
+      background-color: #6b7280;
+      cursor: not-allowed;
+    }
+    
+    button.success-btn {
+      background-color: #10b981;
+    }
+    
+    button.warning-btn {
+      background-color: #f59e0b;
+    }
+    
+    button.danger-btn {
+      background-color: #ef4444;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      background-color: #000;
+      border-radius: 5px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+    }
+    
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    img {
+      max-width: 100%;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    
+    .status {
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #4b5563;
+      border-radius: 5px;
+      text-align: center;
+    }
+    
+    .status-success {
+      background-color: #064e3b;
+    }
+    
+    .status-error {
+      background-color: #7f1d1d;
+    }
+    
+    .status-warning {
+      background-color: #92400e;
+    }
+    
+    .debug-log {
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #111827;
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      border: 1px solid #4b5563;
+    }
+    
+    .debug-log p {
+      margin: 3px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Candidate Verification</h1>
+    
+    <div class="section">
+      <h2>Resume Upload</h2>
+      <p>Please upload your resume (PDF, DOC, or DOCX format)</p>
+      
+      <input type="file" id="resumeInput" accept=".pdf,.doc,.docx">
+      <div id="resumeInfo" class="hidden"></div>
+      <button id="analyzeBtn" disabled>Analyze Resume</button>
+    </div>
+    
+    <div class="section">
+      <h2>ID Verification</h2>
+      <p>Please upload a government-issued photo ID</p>
+      
+      <input type="file" id="idUpload" accept="image/*">
+      <div id="idPreview" class="hidden">
+        <img id="uploadedIDImg" src="" alt="Uploaded ID">
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Face Capture</h2>
+      <p>Please look at the camera for verification</p>
+      
+      <div class="video-container">
+        <div id="cameraPlaceholder">Camera initializing...</div>
+        <div id="cameraError" class="hidden"></div>
+        <video id="liveVideo" autoplay playsinline></video>
+      </div>
+      
+      <button id="captureBtn">Capture Face</button>
+      <div id="capturedPreview" class="hidden">
+        <img id="capturedImg" src="" alt="Captured Face">
+      </div>
+    </div>
+    
+    <div id="status" class="status">Please complete all verification steps</div>
+    
+    <div class="actions">
+      <button id="refreshBtn" class="warning-btn">Reset All</button>
+      <button id="proceedBtn" class="success-btn" disabled>Proceed to Interview</button>
+    </div>
+    
+    <div id="debugLog" class="debug-log">
+      <p>Debug log enabled</p>
+    </div>
+  </div>
+
+  <script src="identification.js"></script>
+</body>
+</html>

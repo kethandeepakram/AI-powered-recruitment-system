@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sync Settings</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      margin-top: 0;
+      color: #4caf50;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      background: #333;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #f0f0f0;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+    button {
+      padding: 10px 15px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #388e3c;
+    }
+    button.secondary {
+      background: #546e7a;
+    }
+    button.secondary:hover {
+      background: #455a64;
+    }
+    .action-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .status-indicator {
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+    .status-good {
+      color: #4caf50;
+    }
+    .status-error {
+      color: #f44336;
+    }
+    .logs {
+      background: #333;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.9em;
+      margin-top: 20px;
+    }
+    .log-entry {
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #444;
+    }
+    .timestamp {
+      color: #8bc34a;
+      margin-right: 10px;
+    }
+    .log-error {
+      color: #f44336;
+    }
+    .log-success {
+      color: #4caf50;
+    }
+    .log-info {
+      color: #2196f3;
+    }
+  </style>
+  <!-- Import Supabase from CDN for this page -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Sync Settings</h1>
+    
+    <div class="form-group">
+      <label for="syncFolder">Database Folder Path:</label>
+      <div class="action-row">
+        <input type="text" id="syncFolder" value="database/">
+        <button id="browseFolderBtn" class="secondary">Browse</button>
+      </div>
+      <div id="folderStatus" class="status-indicator"></div>
+    </div>
+    
+    <div class="form-group">
+      <label>Supabase Sync:</label>
+      <div class="action-row">
+        <button id="testConnectionBtn">Test Connection</button>
+        <div id="connectionStatus" class="status-indicator"></div>
+      </div>
+    </div>
+    
+    <div class="logs" id="syncLogs">
+      <div class="log-entry">
+        <span class="timestamp">[00:00:00]</span>
+        <span class="log-info">Sync settings initialized</span>
+      </div>
+    </div>
+    
+    <div class="buttons">
+      <button id="cancelBtn" class="secondary">Cancel</button>
+      <button id="saveBtn">Save & Continue</button>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const fs = require('fs');
+    const path = require('path');
+
+    // Initialize Supabase client directly
+    const supabaseUrl = 'https://rwltvffgtbonkijirzwy.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3bHR2ZmZndGJvbmtpamlyend5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0MDkxNjQsImV4cCI6MjA1Nzk4NTE2NH0.QRkmGwUVjaQ2dM5fB9Gj78epGFkMKFnAMF6dKAsJD60';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // DOM Elements
+    const syncFolderInput = document.getElementById('syncFolder');
+    const browseFolderBtn = document.getElementById('browseFolderBtn');
+    const folderStatus = document.getElementById('folderStatus');
+    const testConnectionBtn = document.getElementById('testConnectionBtn');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const syncLogs = document.getElementById('syncLogs');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Load saved settings
+    let settings = JSON.parse(localStorage.getItem('syncSettings') || '{}');
+    
+    // Set default values if not saved before
+    if (!settings.syncFolder) {
+      settings.syncFolder = 'database/';
+    }
+    
+    // Update UI with saved settings
+    syncFolderInput.value = settings.syncFolder;
+    
+    // Check if folder exists
+    checkFolderExists();
+    
+    // Event Listeners
+    browseFolderBtn.addEventListener('click', async () => {
+      try {
+        const result = await ipcRenderer.invoke('show-folder-dialog');
+        if (!result.canceled && result.filePaths.length > 0) {
+          syncFolderInput.value = result.filePaths[0];
+          checkFolderExists();
+        }
+      } catch (error) {
+        addLogEntry(`Error selecting folder: ${error.message}`, 'error');
+      }
+    });
+    
+    syncFolderInput.addEventListener('change', checkFolderExists);
+    
+    testConnectionBtn.addEventListener('click', testConnection);
+    
+    cancelBtn.addEventListener('click', () => {
+      window.location.href = 'start.html';
+    });
+    
+    saveBtn.addEventListener('click', saveSettings);
+    
+    // Check if the specified folder exists
+    function checkFolderExists() {
+      const folderPath = syncFolderInput.value;
+      try {
+        if (fs.existsSync(folderPath)) {
+          folderStatus.textContent = '✓ Folder exists';
+          folderStatus.className = 'status-indicator status-good';
+          addLogEntry(`Found directory: ${folderPath}`, 'success');
+        } else {
+          folderStatus.textContent = '⚠ Folder does not exist (will be created)';
+          folderStatus.className = 'status-indicator status-error';
+          addLogEntry(`Directory not found: ${folderPath} (will be created)`, 'info');
+        }
+      } catch (error) {
+        folderStatus.textContent = `Error: ${error.message}`;
+        folderStatus.className = 'status-indicator status-error';
+        addLogEntry(`Error checking directory: ${error.message}`, 'error');
+      }
+    }
+    
+    // Test connection to Supabase
+    async function testConnection() {
+      connectionStatus.textContent = 'Testing...';
+      connectionStatus.className = 'status-indicator';
+      
+      addLogEntry('Testing Supabase connection...', 'info');
+      
+      try {
+        // Try to create a test file in Supabase Storage
+        const testContent = `Test connection: ${new Date().toISOString()}`;
+        const testBuffer = new Uint8Array(Buffer.from(testContent));
+        
+        // Upload test file
+        const { data, error } = await supabase.storage
+          .from('candidates')
+          .upload('connection_test.txt', testBuffer, { 
+            upsert: true,
+            contentType: 'text/plain'
+          });
+        
+        if (error) {
+          connectionStatus.textContent = '⚠ Connection failed';
+          connectionStatus.className = 'status-indicator status-error';
+          addLogEntry(`Supabase connection test failed: ${error.message}`, 'error');
+          console.error('Supabase error:', error);
+          return;
+        }
+        
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('candidates')
+          .getPublicUrl('connection_test.txt');
+        
+        connectionStatus.textContent = '✓ Connection successful';
+        connectionStatus.className = 'status-indicator status-good';
+        addLogEntry('Supabase connection test successful', 'success');
+        
+        if (publicUrlData?.publicUrl) {
+          addLogEntry(`Test file URL: ${publicUrlData.publicUrl}`, 'info');
+        }
+      } catch (error) {
+        connectionStatus.textContent = '⚠ Connection error';
+        connectionStatus.className = 'status-indicator status-error';
+        addLogEntry(`Error testing connection: ${error.message}`, 'error');
+        console.error('Supabase connection error:', error);
+      }
+    }
+    
+    // Save settings and continue
+    function saveSettings() {
+      settings.syncFolder = syncFolderInput.value;
+      
+      // Save settings to localStorage
+      localStorage.setItem('syncSettings', JSON.stringify(settings));
+      
+      addLogEntry('Settings saved', 'success');
+      
+      // Create folder if it doesn't exist
+      if (!fs.existsSync(settings.syncFolder)) {
+        try {
+          fs.mkdirSync(settings.syncFolder, { recursive: true });
+          addLogEntry(`Created directory: ${settings.syncFolder}`, 'success');
+        } catch (error) {
+          addLogEntry(`Error creating directory: ${error.message}`, 'error');
+        }
+      }
+      
+      // Also create candidates subfolder if it doesn't exist
+      const candidatesFolder = path.join(settings.syncFolder, 'candidates');
+      if (!fs.existsSync(candidatesFolder)) {
+        try {
+          fs.mkdirSync(candidatesFolder, { recursive: true });
+          addLogEntry(`Created candidates directory: ${candidatesFolder}`, 'success');
+        } catch (error) {
+          addLogEntry(`Error creating candidates directory: ${error.message}`, 'error');
+        }
+      }
+      
+      // Redirect to the main page
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+    
+    // Add log entry to the logs container
+    function addLogEntry(message, type = 'info') {
+      const timestamp = new Date().toTimeString().split(' ')[0];
+      
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry';
+      
+      const timestampSpan = document.createElement('span');
+      timestampSpan.className = 'timestamp';
+      timestampSpan.textContent = `[${timestamp}]`;
+      
+      const messageSpan = document.createElement('span');
+      messageSpan.className = `log-${type}`;
+      messageSpan.textContent = message;
+      
+      logEntry.appendChild(timestampSpan);
+      logEntry.appendChild(messageSpan);
+      
+      syncLogs.appendChild(logEntry);
+      syncLogs.scrollTop = syncLogs.scrollHeight;
+    }
+  </script>
+</body>
+</html>

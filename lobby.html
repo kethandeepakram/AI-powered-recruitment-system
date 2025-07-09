@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prepare for Interview - HRX</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .loading-section {
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #a0a0a0;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+    
+    .loading-bar-container {
+      width: 80%;
+      max-width: 400px;
+      height: 2px;
+      background-color: #333;
+      overflow: hidden;
+      margin: 30px auto;
+    }
+    
+    .loading-bar {
+      height: 100%;
+      width: 0;
+      background: #ffffff;
+      transition: width 0.5s ease;
+    }
+    
+    .status-message {
+      font-size: 0.9rem;
+      color: #a0a0a0;
+      height: 1.2em;
+      margin: 10px 0;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Minimalist white circle with countdown */
+    .meditation-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    
+    .circle-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: pulse 4s infinite alternate ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      100% {
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    .inner-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 200;
+      color: #fff;
+      z-index: 2;
+    }
+    
+    .countdown {
+      display: block; /* Always show for simplified version */
+    }
+    
+    /* Quote section */
+    .quote-container {
+      max-width: 600px;
+      margin: 40px auto;
+      opacity: 0.9;
+      transition: opacity 0.5s ease;
+    }
+    
+    .quote {
+      font-style: italic;
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      letter-spacing: 0.5px;
+      font-weight: 300;
+    }
+    
+    .quote-author {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #a0a0a0;
+      font-weight: 300;
+    }
+    
+    /* HRX branding */
+    .branding {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: #ffffff;
+      letter-spacing: 8px;
+      margin-bottom: 5px;
+    }
+    
+    .tagline {
+      font-size: 0.8rem;
+      color: #a0a0a0;
+      letter-spacing: 1px;
+      font-weight: 300;
+    }
+    
+    /* Background lighting effect */
+    .light-source {
+      position: fixed;
+      top: -30%;
+      right: -10%;
+      width: 80vw;
+      height: 80vw;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 60%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    /* Light rays */
+    .light-ray {
+      position: absolute;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
+      transform-origin: top center;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background lighting effect -->
+  <div class="light-source"></div>
+  <div class="light-ray" style="width: 40vw; height: 100vh; top: 0; left: 20vw; transform: rotate(-5deg);"></div>
+  <div class="light-ray" style="width: 60vw; height: 100vh; top: 0; right: 10vw; transform: rotate(5deg);"></div>
+  
+  <div class="container">
+    <div class="loading-section">
+      <h1>PREPARE</h1>
+      <p class="subtitle">Take a moment to center yourself</p>
+      
+      <div class="meditation-circle">
+        <div class="circle-pulse"></div>
+        <div class="inner-circle countdown" id="countdown">10</div>
+      </div>
+      
+      <div class="loading-bar-container">
+        <div class="loading-bar" id="loadingBar" style="width: 100%"></div>
+      </div>
+      <div class="status-message" id="statusMessage">Starting interview in a moment...</div>
+    </div>
+    
+    <div class="quote-container">
+      <p class="quote" id="quote">"Success is not final, failure is not fatal: it is the courage to continue that counts."</p>
+      <p class="quote-author" id="quoteAuthor">- Winston Churchill</p>
+    </div>
+    
+    <div class="branding">
+      <div class="logo">HRX</div>
+      <div class="tagline">Transforming the way the world hires</div>
+    </div>
+  </div>
+  
+  <script>
+    // Simple standalone script that doesn't rely on external files
+    document.addEventListener('DOMContentLoaded', function() {
+      const loadingBar = document.getElementById('loadingBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const countdown = document.getElementById('countdown');
+      
+      let countdownValue = 10;
+      
+      // Start countdown
+      const countdownInterval = setInterval(() => {
+        countdownValue--;
+        countdown.textContent = countdownValue;
+        
+        if (countdownValue <= 0) {
+          clearInterval(countdownInterval);
+          statusMessage.textContent = "Starting interview...";
+          
+          // Navigate to aptitude page
+          setTimeout(() => {
+            window.location.href = "aptitude.html";
+          }, 500);
+        }
+      }, 1000);
+      
+      // Rotate quotes
+      const quotes = [
+        { 
+          text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", 
+          author: "Winston Churchill" 
+        },
+        { 
+          text: "The only way to do great work is to love what you do.", 
+          author: "Steve Jobs" 
+        },
+        { 
+          text: "Believe you can and you're halfway there.", 
+          author: "Theodore Roosevelt" 
+        }
+      ];
+      
+      const quoteElement = document.getElementById('quote');
+      const authorElement = document.getElementById('quoteAuthor');
+      const quoteContainer = document.querySelector('.quote-container');
+      
+      setInterval(() => {
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        
+        // Fade out
+        quoteContainer.style.opacity = 0;
+        
+        // Change text and fade in after a short delay
+        setTimeout(() => {
+          quoteElement.textContent = `"${randomQuote.text}"`;
+          authorElement.textContent = `- ${randomQuote.author}`;
+          
+          quoteContainer.style.opacity = 0.9;
+        }, 500);
+      }, 8000);
+    });
+  </script>
+</body>
+</html>

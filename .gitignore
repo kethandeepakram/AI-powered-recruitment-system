@@ -1,0 +1,6 @@
+node_modules\
+node_modu*
+database/
+__pycache__/
+dashboard/models/qwen25.gguf
+models/yolov3.weights

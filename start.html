@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Interview System - Welcome</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #a0a0a0;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+    
+    .form-container {
+      background-color: rgba(26, 26, 26, 0.8);
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      transition: background-color 0.3s;
+      margin-top: 20px;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    .branding {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: #ffffff;
+      letter-spacing: 8px;
+      margin-bottom: 5px;
+    }
+    
+    .tagline {
+      font-size: 0.8rem;
+      color: #a0a0a0;
+      letter-spacing: 1px;
+      font-weight: 300;
+    }
+    
+    .error {
+      color: #e74c3c;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WELCOME</h1>
+    <p class="subtitle">Enter your details to begin the interview process</p>
+    
+    <div class="form-container">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Enter your full name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Enter your email address" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="position">Position Applying For</label>
+        <select id="position" required>
+          <option value="" disabled selected>Select a position</option>
+          <option value="Software Engineer">Software Engineer</option>
+          <option value="Data Scientist">Data Scientist</option>
+          <option value="Product Manager">Product Manager</option>
+        </select>
+      </div>
+      
+      <button id="startButton">Begin Interview Process</button>
+      <div id="errorMessage" class="error"></div>
+    </div>
+    
+    <div class="branding">
+      <div class="logo">HRX</div>
+      <div class="tagline">Transforming the way the world hires</div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const startButton = document.getElementById('startButton');
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const positionSelect = document.getElementById('position');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      startButton.addEventListener('click', function() {
+        if (!nameInput.value.trim()) {
+          errorMessage.textContent = 'Please enter your name';
+          return;
+        }
+        
+        if (!emailInput.value.trim()) {
+          errorMessage.textContent = 'Please enter your email';
+          return;
+        }
+        
+        if (!positionSelect.value) {
+          errorMessage.textContent = 'Please select a position';
+          return;
+        }
+        
+        localStorage.setItem('candidateName', nameInput.value.trim());
+        localStorage.setItem('candidateEmail', emailInput.value.trim());
+        localStorage.setItem('candidatePosition', positionSelect.value);
+        localStorage.setItem('candidateId', nameInput.value.trim().toLowerCase().replace(/\s+/g, '_'));
+        
+        // Redirect to identification page
+        window.location.href = 'identification.html';
+      });
+    });
+  </script>
+</body>
+</html>

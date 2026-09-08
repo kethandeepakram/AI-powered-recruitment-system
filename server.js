@@ -19,6 +19,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+// Serve frontend files
+app.use(express.static(__dirname));
+
+// Home page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'start.html'));
+});
 
 // Firebase configuration
 const firebaseConfig = {

@@ -65,20 +65,26 @@
       font-size: 0.9rem;
     }
     
-    input, select {
+   input, select {
   width: 100%;
   padding: 10px 15px;
   border: none;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #ffffff !important;
+  color: #000000 !important;
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
+  color-scheme: light;
 }
 
 select option {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+select option:checked {
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 input::placeholder {
